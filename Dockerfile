@@ -36,7 +36,7 @@ RUN pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 --extra-index-url 
 
 # 克隆NeRF-SLAM仓库并更新子模块
 # COPY . /NERF-SLAM
-RUN git clone https://github.com/ToniRV/NeRF-SLAM.git /NERF-SLAM --recurse-submodules && \
+RUN git clone https://github.com/RyanAshbaugh/NeRF-SLAM.git /NERF-SLAM --recurse-submodules && \
     cd /NERF-SLAM && \
     git submodule update --init --recursive
 
@@ -50,9 +50,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # 安装所需的Python库
-RUN pip install -r requirements.txt && \
-    pip install -r thirdparty/gtsam/python/requirements.txt && \
-    cd thirdparty/instant-ngp && \
+RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple && \
+    pip install -r thirdparty/gtsam/python/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple 
+
+RUN cd thirdparty/instant-ngp && \
     cmake . -B build_ngp && \
     cmake --build build_ngp --config RelWithDebInfo -j
 
@@ -64,7 +65,7 @@ RUN cd thirdparty/gtsam && \
     make python-install
 
 # 安装Python包
-RUN python setup.py install
+RUN python3 setup.py install
 
 # 设置入口点
 ENTRYPOINT ["/bin/bash", "-c", "exec bash"]
